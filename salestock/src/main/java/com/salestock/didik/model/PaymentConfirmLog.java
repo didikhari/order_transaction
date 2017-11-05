@@ -21,7 +21,7 @@ import javax.persistence.TemporalType;
 public class PaymentConfirmLog implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private String id;
-	private OrderTransaction order;
+	private OrderTransaction orderTransaction;
 	private Date confirmDate;
 	private long amount;
 	private String senderName;
@@ -34,7 +34,7 @@ public class PaymentConfirmLog implements java.io.Serializable {
 	public PaymentConfirmLog(String id, OrderTransaction order, Date confirmDate,
 			long amount, int receipentAccountNumber, String transferReceiptUrl) {
 		this.id = id;
-		this.order = order;
+		this.orderTransaction = order;
 		this.confirmDate = confirmDate;
 		this.amount = amount;
 		this.receipentAccountNumber = receipentAccountNumber;
@@ -45,7 +45,7 @@ public class PaymentConfirmLog implements java.io.Serializable {
 			long amount, String senderName, int receipentAccountNumber,
 			String transferReceiptUrl) {
 		this.id = id;
-		this.order = order;
+		this.orderTransaction = order;
 		this.confirmDate = confirmDate;
 		this.amount = amount;
 		this.senderName = senderName;
@@ -65,12 +65,12 @@ public class PaymentConfirmLog implements java.io.Serializable {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_id", nullable = false)
-	public OrderTransaction getOrder() {
-		return this.order;
+	public OrderTransaction getOrderTransaction() {
+		return this.orderTransaction;
 	}
 
-	public void setOrder(OrderTransaction order) {
-		this.order = order;
+	public void setOrderTransaction(OrderTransaction order) {
+		this.orderTransaction = order;
 	}
 
 	@Temporal(TemporalType.TIMESTAMP)

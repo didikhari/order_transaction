@@ -7,3 +7,6 @@ insert into `product` ( `weight`, `id`, `create_date`, `price`, `update_by`, `cr
 insert into `product_detail` ( `size`, `id`, `stock`, `product_id`, `color`) values ( 'XL', '0910A44F-9C50-4083-8CD7-D48FC51FA9B9', '5', '0910A44F-9C50-4083-8CD7-D48FC51FA9A9', 'Pink');
 insert into `product_detail` ( `size`, `id`, `stock`, `product_id`, `color`) values ( 'M', '0910A44F-9C50-4083-8CD7-D48FC51FA9B8', '5', '0910A44F-9C50-4083-8CD7-D48FC51FA9A9', 'Kuning');
 insert into `product_detail` ( `size`, `id`, `stock`, `product_id`, `color`) values ( 'M', '0910A44F-9C50-4083-8CD7-D48FC51FA9B7', '5', '0910A44F-9C50-4083-8CD7-D48FC51FA9A9', 'Merah Maroon');
+
+insert into `coupon` ( `quantity`, `id`, `code`, `start_date`, `is_percentage`, `value`, `end_date`) values ( '5', '1', 'NOV10000', '2017-10-28 23:46:24', '0', '10000', '2017-11-11 23:46:30');
+insert into `coupon` ( `quantity`, `id`, `code`, `start_date`, `is_percentage`, `value`, `end_date`) values ( '5', '2', 'NOV30', '2017-11-05 23:46:49', '1', '30', '2017-11-06 23:46:51');

@@ -29,24 +29,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Product implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private String id;
-	@JsonProperty(value="category")
 	private ProductCategory productCategory;
 	private String name;
 	private String description;
 	private BigDecimal price;
 	private Double weight;
-	@JsonIgnore
 	private String createBy;
-	@JsonIgnore
 	private Date createDate;
-	@JsonIgnore
 	private String updateBy;
-	@JsonIgnore
 	private Date updateDate;
 	private Set<ProductDetail> productDetails = new HashSet<ProductDetail>(0);
-	@JsonIgnore
 	private Set<ShoppingCart> shoppingCarts = new HashSet<ShoppingCart>(0);
-
+	private String imageUrl;
+	
 	public Product() {
 	}
 
@@ -184,6 +179,14 @@ public class Product implements java.io.Serializable {
 
 	public void setShoppingCarts(Set<ShoppingCart> shoppingCarts) {
 		this.shoppingCarts = shoppingCarts;
+	}
+	@Column(name = "image_url")
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 }
