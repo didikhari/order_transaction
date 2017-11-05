@@ -48,7 +48,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	@Override
 	public Page<ShoppingCart> getShoppingCarts(Integer page, Integer size){
 		QShoppingCart queryCart_ = QShoppingCart.shoppingCart;
-		BooleanExpression notOrdered = queryCart_.orderId.isNull().or(queryCart_.orderId.isEmpty());
+		BooleanExpression notOrdered = queryCart_.orderTransaction.isNull();
 		Page<ShoppingCart> result = shoppingCartRepository.findAll(notOrdered, new PageRequest(page, 
 				size, new Sort(Direction.DESC, "updateDate")));
 		return result;
