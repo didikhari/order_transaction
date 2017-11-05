@@ -1,0 +1,75 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.3.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+ext {
+    queryDslVersion = '4.0.3'
+}
+
+compileJava {
+    options.compilerArgs << "-s"
+    options.compilerArgs << "$projectDir/generated/java"
+
+    doFirst {
+        // make sure that directory exists
+        file(new File(projectDir, "/generated/java")).mkdirs()
+    }
+}
+
+clean.doLast {
+    // clean-up directory when necessary
+    file(new File(projectDir, "/generated")).deleteDir()
+}
+
+sourceSets {
+    generated {
+        java {
+            srcDir "$projectDir/generated/java"
+        }
+    }
+}
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile("org.springframework.boot:spring-boot-starter-security")
+	compile('org.springframework.boot:spring-boot-starter-web')
+    compile("org.springframework.boot:spring-boot-devtools")		
+	compile('org.springframework:spring-jdbc')
+    compile("org.springframework:spring-web")
+    compile("com.fasterxml.jackson.core:jackson-databind")
+    compile("org.hibernate:hibernate-validator")
+    compile("org.apache.tomcat.embed:tomcat-embed-el")
+	compile('io.springfox:springfox-swagger2:2.6.1')
+	compile('io.springfox:springfox-swagger-ui:2.6.1')
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+	
+    compile "com.querydsl:querydsl-jpa:$queryDslVersion"
+
+    compileOnly "com.querydsl:querydsl-apt:$queryDslVersion:jpa"
+    compileOnly 'org.projectlombok:lombok:1.16.8'
+    
+	runtime('com.h2database:h2')
+	//runtime('mysql:mysql-connector-java')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
