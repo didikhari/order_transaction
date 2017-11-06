@@ -25,14 +25,14 @@ public class PaymentConfirmLog implements java.io.Serializable {
 	private Date confirmDate;
 	private long amount;
 	private String senderName;
-	private int receipentAccountNumber;
+	private String receipentAccountNumber;
 	private String transferReceiptUrl;
 
 	public PaymentConfirmLog() {
 	}
 
 	public PaymentConfirmLog(String id, OrderTransaction order, Date confirmDate,
-			long amount, int receipentAccountNumber, String transferReceiptUrl) {
+			long amount, String receipentAccountNumber, String transferReceiptUrl) {
 		this.id = id;
 		this.orderTransaction = order;
 		this.confirmDate = confirmDate;
@@ -42,7 +42,7 @@ public class PaymentConfirmLog implements java.io.Serializable {
 	}
 
 	public PaymentConfirmLog(String id, OrderTransaction order, Date confirmDate,
-			long amount, String senderName, int receipentAccountNumber,
+			long amount, String senderName, String receipentAccountNumber,
 			String transferReceiptUrl) {
 		this.id = id;
 		this.orderTransaction = order;
@@ -102,11 +102,11 @@ public class PaymentConfirmLog implements java.io.Serializable {
 	}
 
 	@Column(name = "receipent_account_number", nullable = false)
-	public int getReceipentAccountNumber() {
+	public String getReceipentAccountNumber() {
 		return this.receipentAccountNumber;
 	}
 
-	public void setReceipentAccountNumber(int receipentAccountNumber) {
+	public void setReceipentAccountNumber(String receipentAccountNumber) {
 		this.receipentAccountNumber = receipentAccountNumber;
 	}
 

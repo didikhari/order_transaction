@@ -23,6 +23,7 @@ import com.salestock.didik.helper.CommonUtils;
 import com.salestock.didik.helper.Constant;
 import com.salestock.didik.model.Coupon;
 import com.salestock.didik.model.OrderTransaction;
+import com.salestock.didik.model.PaymentConfirmLog;
 import com.salestock.didik.model.ProductDetail;
 import com.salestock.didik.model.QOrderTransaction;
 import com.salestock.didik.model.QShoppingCart;
@@ -32,6 +33,7 @@ import com.salestock.didik.processor.RajaOngkirProcessor;
 import com.salestock.didik.processor.model.RajaOngkirCostResponse;
 import com.salestock.didik.repository.CouponRepository;
 import com.salestock.didik.repository.OrderRepository;
+import com.salestock.didik.repository.PaymentConfirmLogRepository;
 import com.salestock.didik.repository.ProductDetailRespository;
 import com.salestock.didik.repository.ShippingAddressRepository;
 import com.salestock.didik.repository.ShoppingCartRepository;
@@ -45,7 +47,8 @@ public class OrderServiceImpl implements OrderService {
 	private ShippingAddressRepository shippingAddressRepository;
 	private CouponRepository couponRepository;
 	private RajaOngkirProcessor rajaOngkirProcessor;
-
+	private PaymentConfirmLogRepository confirmLogRepository;
+	
     @Value("${rajaongkir.origin}") 
     private String rajaOngkirOrigin;
     
@@ -54,8 +57,10 @@ public class OrderServiceImpl implements OrderService {
 			ProductDetailRespository productDetailRespository,
 			ShoppingCartRepository shoppingCartRepository,
 			ShippingAddressRepository shippingAddressRepository, 
-			CouponRepository couponRepository, RajaOngkirProcessor rajaOngkirProcessor) {
+			CouponRepository couponRepository, RajaOngkirProcessor rajaOngkirProcessor,
+			PaymentConfirmLogRepository confirmLogRepository) {
 		
+		this.confirmLogRepository =  confirmLogRepository;
 		this.shippingAddressRepository = shippingAddressRepository;
 		this.orderRepository = orderRepository;
 		this.productDetailRespository = productDetailRespository;
@@ -111,14 +116,17 @@ public class OrderServiceImpl implements OrderService {
 			throw new Exception("Couldn't get Shipping Cost");
 		}
 		
-		if(coupon.isPercentage()){
-			BigDecimal discountValue = totalPrice.multiply(new BigDecimal(coupon.getValue())).divide(new BigDecimal(100));
-			order.setCouponDiscount(discountValue);
-		}else{
-			order.setCouponDiscount(new BigDecimal(coupon.getValue()));
+		order.setCouponDiscount(BigDecimal.ZERO);
+		if(coupon != null){
+			if(coupon.isPercentage()){
+				BigDecimal discountValue = totalPrice.multiply(new BigDecimal(coupon.getValue())).divide(new BigDecimal(100));
+				order.setCouponDiscount(discountValue);
+			}else{
+				order.setCouponDiscount(new BigDecimal(coupon.getValue()));
+			}
+			order.setCouponCode(requestData.getCouponCode());
 		}
 		
-		order.setCouponCode(requestData.getCouponCode());
 		
 		order.setSubTotalPrice(totalPrice);
 		order.setTotalPrice(order.getSubTotalPrice().add(order.getShippingCost()).subtract(order.getCouponDiscount()));
@@ -193,5 +201,10 @@ public class OrderServiceImpl implements OrderService {
 		}
 		coupon.setStock(coupon.getStock() - 1);
 		return couponRepository.save(coupon);
+	}
+	
+	@Override
+	public PaymentConfirmLog saveConfirmation(PaymentConfirmLog confirm){
+		return confirmLogRepository.save(confirm);
 	}
 }

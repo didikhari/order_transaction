@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import com.salestock.didik.api.request.OrderRequest;
 import com.salestock.didik.model.Coupon;
 import com.salestock.didik.model.OrderTransaction;
+import com.salestock.didik.model.PaymentConfirmLog;
 import com.salestock.didik.model.ProductDetail;
 
 public interface OrderService {
@@ -26,4 +27,6 @@ public interface OrderService {
 
 	ProductDetail updateProductStock(String productDetailId, Integer quantity,
 			boolean isRetur) throws Exception;
+
+	PaymentConfirmLog saveConfirmation(PaymentConfirmLog confirm);
 }
