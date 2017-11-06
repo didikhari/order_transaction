@@ -4,6 +4,7 @@ package com.salestock.didik.model;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -171,6 +172,14 @@ public class ShippingAddress implements java.io.Serializable {
 
 	public void setCityId(String cityId) {
 		this.cityId = cityId;
+	}
+
+	@Override
+	public String toString() {
+		return String
+				.format("ShippingAddress [fullName=%s, email=%s, phone=%s, addressLine=%s, subDistrict=%s, city=%s, cityId=%s, province=%s, postalCode=%s, userId=%s]",
+						fullName, email, phone, addressLine, subDistrict, city,
+						cityId, province, postalCode, userId);
 	}
 
 }

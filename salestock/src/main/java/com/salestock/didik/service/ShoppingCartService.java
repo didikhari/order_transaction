@@ -9,11 +9,11 @@ import com.salestock.didik.model.ShoppingCart;
 public interface ShoppingCartService {
 
 	ShoppingCart addToCart(Product product, ProductDetail productDetail,
-			Integer quantity);
+			Integer quantity, String userId);
 
 	ShoppingCart updateCart(ShoppingCart shoppingCart);
 
-	Page<ShoppingCart> getShoppingCarts(Integer page, Integer size);
+	Page<ShoppingCart> getShoppingCarts(Integer page, Integer size, String userId);
 
 	ShoppingCart getCartItem(String cartId);
 

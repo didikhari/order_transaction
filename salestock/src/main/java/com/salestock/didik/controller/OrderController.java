@@ -3,6 +3,7 @@ package com.salestock.didik.controller;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,11 +28,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.salestock.didik.api.request.CreateAddressRequest;
 import com.salestock.didik.api.request.OrderRequest;
 import com.salestock.didik.api.request.UpdateOrder;
 import com.salestock.didik.api.response.ApiResponse;
-import com.salestock.didik.api.response.CreateAddressResponse;
+import com.salestock.didik.api.response.AddressResponse;
 import com.salestock.didik.api.response.ListData;
 import com.salestock.didik.api.response.PaymentConfirmResponse;
 import com.salestock.didik.api.response.ResponseBuilder;
@@ -40,6 +42,7 @@ import com.salestock.didik.helper.Constant;
 import com.salestock.didik.model.Coupon;
 import com.salestock.didik.model.OrderTransaction;
 import com.salestock.didik.model.PaymentConfirmLog;
+import com.salestock.didik.model.QShippingAddress;
 import com.salestock.didik.model.ShippingAddress;
 import com.salestock.didik.processor.model.OrderListResponse;
 import com.salestock.didik.processor.model.OrderSingleResponse;
@@ -72,16 +75,46 @@ public class OrderController {
     @PostMapping(value="new-address", 
     		produces=MediaType.APPLICATION_JSON_VALUE, 
     		consumes=MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<CreateAddressResponse> addShippingAddress(@Valid @RequestBody CreateAddressRequest requestData){
+    public ApiResponse<AddressResponse> addShippingAddress(@Valid @RequestBody 
+    		CreateAddressRequest requestData, Principal principal){
     	
     	ShippingAddress shippingAddress = new ShippingAddress(CommonUtils.generateUUID(), 
     			requestData.getFullName(), requestData.getEmail(), requestData.getPhone(), 
     			requestData.getAddressLine(), requestData.getSubDistrict(), requestData.getCity(), 
     			requestData.getProvince(), requestData.getPostalCode());
     	shippingAddress.setCityId(requestData.getCityId());
+    	shippingAddress.setUserId(principal.getName());
     	
     	ShippingAddress address = shippingAddressRepository.save(shippingAddress);
-    	CreateAddressResponse response = new CreateAddressResponse(address);
+    	AddressResponse response = new AddressResponse(address);
+    	
+    	return ResponseBuilder.responseSuccess("OK", response);
+    }
+    
+    /**
+     * List address of logged in User
+     * @param principal
+     * @return
+     */
+    @GetMapping(value="list-address", produces=MediaType.APPLICATION_JSON_VALUE)
+    public ApiResponse<ListData<AddressResponse>> listUserAddress(Principal principal){
+    	
+    	QShippingAddress shippingAddress = QShippingAddress.shippingAddress;
+    	BooleanExpression withUser = shippingAddress.userId.eq(principal.getName());
+    	
+    	List<AddressResponse> responseDatas = new ArrayList<AddressResponse>();
+    	Iterable<ShippingAddress> addressList = shippingAddressRepository.findAll(withUser);
+    	
+    	for (ShippingAddress address : addressList) {
+    		AddressResponse response = new AddressResponse(address);
+    		responseDatas.add(response);
+		}
+    	
+    	ListData<AddressResponse> response = new ListData<AddressResponse>();
+    	response.setPage(1);
+    	response.setTotalPage(1);
+    	response.setSize(responseDatas.size());
+    	response.setContents(responseDatas);
     	
     	return ResponseBuilder.responseSuccess("OK", response);
     }
@@ -94,14 +127,15 @@ public class OrderController {
 	@PostMapping(value="submit-order", 
 			produces=MediaType.APPLICATION_JSON_VALUE, 
 			consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<OrderSingleResponse> submitOrder(@Valid @RequestBody OrderRequest requestData){
+	public ApiResponse<OrderSingleResponse> submitOrder(@Valid @RequestBody OrderRequest requestData,
+			Principal principal){
 		
 		try {
 			Coupon coupon = null;
 			if(StringUtils.isNotBlank(requestData.getCouponCode())){
 				coupon = orderService.updateCouponStock(requestData.getCouponCode());
 			}
-			OrderTransaction orderTransaction = orderService.submitOrder(requestData, coupon);
+			OrderTransaction orderTransaction = orderService.submitOrder(requestData, coupon, principal.getName());
 			OrderSingleResponse response = new OrderSingleResponse(orderTransaction);
 			return ResponseBuilder.responseSuccess("Success", response);
 		} catch (Exception e) {
@@ -114,9 +148,10 @@ public class OrderController {
 	public ApiResponse<ListData<OrderListResponse>> listOrder(
 			@RequestParam(value="page", defaultValue="1") Integer page, 
 			@RequestParam(value="size", defaultValue="100") Integer size, 
-			@RequestParam(value="status", defaultValue=Constant.ORDER_INITIALIZED) String status){
+			@RequestParam(value="status", defaultValue=Constant.ORDER_INITIALIZED) String status,
+			Principal principal){
 		
-		Page<OrderTransaction> responseData = orderService.listOrderTransaction(page, size, status);
+		Page<OrderTransaction> responseData = orderService.listOrderTransaction(page, size, status, principal.getName());
 		if(responseData != null && responseData.getTotalElements() > 0){
 			List<OrderListResponse> contents = new ArrayList<OrderListResponse>();
 			for (OrderTransaction orderTransaction : responseData.getContent()) {
@@ -144,10 +179,11 @@ public class OrderController {
 	}
 	
 	@PutMapping(value="/admin/update-order")
-	public ApiResponse<OrderSingleResponse> updateOrder(@Valid @RequestBody UpdateOrder requestData){
+	public ApiResponse<OrderSingleResponse> updateOrder(@Valid @RequestBody UpdateOrder requestData, Principal principal){
 		try {
 			OrderTransaction orderTransaction = orderService.updateOrder(requestData.getOrderId(), 
-					requestData.getStatus(), requestData.getTrackingCode());
+					requestData.getStatus(), requestData.getTrackingCode(), principal.getName());
+			
 			if(orderTransaction != null){
 				OrderSingleResponse response = new OrderSingleResponse(orderTransaction);
 				return ResponseBuilder.responseSuccess("Success", response);
@@ -167,11 +203,14 @@ public class OrderController {
 			@RequestParam(value="amount") String amount, 
 			@RequestParam(value="sender_name") String senderName, 
 			@RequestParam(value="dest_number") String receipentAccountNumber, 
-			@RequestParam(value="file") MultipartFile file) throws Exception{
+			@RequestParam(value="file") MultipartFile file, Principal principal) throws Exception{
 		 
 		 OrderTransaction orderTransaction = orderService.getOrderById(orderId);
 		 
 		 if(orderTransaction != null){
+
+			 if(!StringUtils.equals(orderTransaction.getUserId(), principal.getName()))
+					throw new Exception("Access Denied");
 			 
 			 if(!orderTransaction.getTotalPrice().equals(new BigDecimal(amount)))
 				 throw new Exception("Invalid Amount");

@@ -28,7 +28,8 @@ public class ShoppingCart implements java.io.Serializable {
 	private int quantity;
 	private Date createDate;
 	private Date updateDate;
-
+	private String userId;
+	
 	public ShoppingCart() {
 	}
 
@@ -117,6 +118,15 @@ public class ShoppingCart implements java.io.Serializable {
 
 	public void setUpdateDate(Date updateDate) {
 		this.updateDate = updateDate;
+	}
+
+	@Column(name = "user_id")
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 }

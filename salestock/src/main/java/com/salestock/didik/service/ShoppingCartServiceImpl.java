@@ -27,11 +27,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	}
 	
 	@Override
-	public ShoppingCart addToCart(Product product, ProductDetail productDetail, Integer quantity){
+	public ShoppingCart addToCart(Product product, ProductDetail productDetail, Integer quantity, String userId){
 		ShoppingCart cart = new ShoppingCart(CommonUtils.generateUUID(), productDetail, quantity);
 		cart.setProduct(product);
 		cart.setCreateDate(CommonUtils.getCurrentDateTime());
 		cart.setUpdateDate(CommonUtils.getCurrentDateTime());
+		cart.setUserId(userId);
 		ShoppingCart shoppingCart = shoppingCartRepository.save(cart);
 		return shoppingCart;
 	}
@@ -46,11 +47,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	}
 	
 	@Override
-	public Page<ShoppingCart> getShoppingCarts(Integer page, Integer size){
+	public Page<ShoppingCart> getShoppingCarts(Integer page, Integer size, String userId){
 		QShoppingCart queryCart_ = QShoppingCart.shoppingCart;
 		BooleanExpression notOrdered = queryCart_.orderTransaction.isNull();
-		Page<ShoppingCart> result = shoppingCartRepository.findAll(notOrdered, new PageRequest(page, 
-				size, new Sort(Direction.DESC, "updateDate")));
+		BooleanExpression withUserId = queryCart_.userId.eq(userId);
+		Page<ShoppingCart> result = shoppingCartRepository.findAll(notOrdered.and(withUserId), 
+				new PageRequest(page, size, new Sort(Direction.DESC, "updateDate")));
 		return result;
 	}
 	

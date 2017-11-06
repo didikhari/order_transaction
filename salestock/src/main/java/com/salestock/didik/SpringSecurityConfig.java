@@ -29,8 +29,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		//http.csrf().disable().exceptionHandling().accessDeniedHandler(getAccessDeniedHandler());
+		http.csrf().disable().authorizeRequests().antMatchers("/v1/admin/**").hasRole("ADMIN").and().httpBasic();
 		http.csrf().disable().authorizeRequests().antMatchers("/v1/**").authenticated().and().httpBasic();
-		http.csrf().disable().authorizeRequests().antMatchers("/v1/admin").hasRole("ADMIN").and().httpBasic();
 		
 		http.authorizeRequests().antMatchers("/v2/api-docs").permitAll();
 		http.authorizeRequests().antMatchers("/configuration/ui").permitAll();
@@ -46,6 +46,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 			throws Exception {
 		auth.inMemoryAuthentication().withUser("admin@gmail.com").password("admin123").roles("ADMIN");
 		auth.inMemoryAuthentication().withUser("user@gmail.com").password("user123").roles("USER");
+		auth.inMemoryAuthentication().withUser("user1@gmail.com").password("user123").roles("USER");
+		auth.inMemoryAuthentication().withUser("user2@gmail.com").password("user123").roles("USER");
+		auth.inMemoryAuthentication().withUser("user3@gmail.com").password("user123").roles("USER");
 	}
 	
 	@Bean

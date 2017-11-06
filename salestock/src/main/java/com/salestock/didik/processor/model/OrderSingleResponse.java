@@ -13,6 +13,7 @@ public class OrderSingleResponse extends OrderListResponse {
 	private String couponCode;
 	private String paymentMethod;
 	private PaymentDetail paymentDetails;
+	private String trackingCode;
 	
 	public OrderSingleResponse(OrderTransaction order) {
 		super(order);
@@ -22,6 +23,7 @@ public class OrderSingleResponse extends OrderListResponse {
 			this.couponCode = order.getCouponCode();
 			this.paymentMethod = order.getPaymentMethod();
 			this.paymentDetails = new PaymentDetail(order);
+			this.trackingCode = order.getShippingTrackingCode();
 		}
 	}
 
@@ -63,6 +65,14 @@ public class OrderSingleResponse extends OrderListResponse {
 
 	public void setPaymentDetails(PaymentDetail paymentDetails) {
 		this.paymentDetails = paymentDetails;
+	}
+
+	public String getTrackingCode() {
+		return trackingCode;
+	}
+
+	public void setTrackingCode(String trackingCode) {
+		this.trackingCode = trackingCode;
 	}
 
 }

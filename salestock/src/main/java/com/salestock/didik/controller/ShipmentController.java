@@ -54,8 +54,6 @@ public class ShipmentController {
 	@Value("${rajaongkir.origin}") 
     private String rajaOngkirOrigin;
 	
-    
-    
 	@ApiOperation(value="Check Shipping Cost")
 	@PostMapping(value={"/check-shipping-cost"}, produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponse<ShipingCostResponse> checkOut(@RequestBody CheckShippingCostRequest requestData) throws Exception{

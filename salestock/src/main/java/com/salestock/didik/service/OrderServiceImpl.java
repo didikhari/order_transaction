@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional(rollbackFor=Exception.class, propagation=Propagation.REQUIRED, isolation=Isolation.SERIALIZABLE)
-	public OrderTransaction submitOrder(OrderRequest requestData, Coupon coupon) throws Exception{
+	public OrderTransaction submitOrder(OrderRequest requestData, Coupon coupon, String userId) throws Exception{
 
 		OrderTransaction order = new OrderTransaction(CommonUtils.generateUUID());
 		order.setOrderDate(CommonUtils.getCurrentDateTime());
@@ -127,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
 			order.setCouponCode(requestData.getCouponCode());
 		}
 		
-		
+		order.setUserId(userId);
 		order.setSubTotalPrice(totalPrice);
 		order.setTotalPrice(order.getSubTotalPrice().add(order.getShippingCost()).subtract(order.getCouponDiscount()));
 		order.setShoppingCarts(Sets.newHashSet(carts));
@@ -144,7 +144,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Override
-	public Page<OrderTransaction> listOrderTransaction(Integer page, Integer size, String status){
+	public Page<OrderTransaction> listOrderTransaction(Integer page, Integer size, String status, String userId){
 		QOrderTransaction orderQuery_ = QOrderTransaction.orderTransaction;
 		BooleanBuilder criteriaBuilder = new BooleanBuilder();
 		if(StringUtils.isNotBlank(status)) {
@@ -157,13 +157,28 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Override
+	public Iterable<OrderTransaction> listOrderTransaction(String status){
+		QOrderTransaction orderQuery_ = QOrderTransaction.orderTransaction;
+		BooleanBuilder criteriaBuilder = new BooleanBuilder();
+		if(StringUtils.isNotBlank(status)) {
+			BooleanExpression sameStatus = orderQuery_.status.eq(status);
+			criteriaBuilder.and(sameStatus);
+		}
+		Iterable<OrderTransaction> result = orderRepository.findAll(criteriaBuilder);
+		return result;
+	}
+	
+	@Override
 	@Transactional(rollbackFor=Exception.class)
-	public OrderTransaction updateOrder(String orderId, String status, String shippingTrackingCode){
+	public OrderTransaction updateOrder(String orderId, String status, String shippingTrackingCode, String userId) throws Exception{
 		OrderTransaction orderTransaction = orderRepository.findOne(orderId);
+		
 		if(StringUtils.isNotBlank(status))
 			orderTransaction.setStatus(status);
+		
 		if(StringUtils.isNotBlank(shippingTrackingCode))
 			orderTransaction.setShippingTrackingCode(shippingTrackingCode);
+		
 		return orderRepository.save(orderTransaction);
 	}
 	

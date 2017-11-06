@@ -1,12 +1,14 @@
 package com.salestock.didik.controller;
 
+import io.swagger.annotations.Api;
+
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.swagger.annotations.Api;
-
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -49,10 +51,10 @@ public class CartController {
 	@GetMapping(value="carts", produces=MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponse<ListData<CartResponse>> getListCart(
 			@RequestParam(value="page", defaultValue="1") Integer page, 
-			@RequestParam(value="size", defaultValue="100") Integer size){
+			@RequestParam(value="size", defaultValue="100") Integer size, Principal principal){
 		
 		try {
-			ListData<CartResponse> responseData = listCart(page, size);
+			ListData<CartResponse> responseData = listCart(page, size, principal.getName());
 			if(responseData != null){
 				return ResponseBuilder.responseSuccess("Success", responseData);
 			}
@@ -63,9 +65,9 @@ public class CartController {
 		}
 	}
 
-	private ListData<CartResponse> listCart(Integer page, Integer size) {
+	private ListData<CartResponse> listCart(Integer page, Integer size, String userId) {
 		ListData<CartResponse> response = new ListData<CartResponse>();
-		Page<ShoppingCart> result = shoppingCartService.getShoppingCarts((page > 0) ? page - 1 : page, size);
+		Page<ShoppingCart> result = shoppingCartService.getShoppingCarts((page > 0) ? page - 1 : page, size, userId);
 		if(result.getTotalElements() > 0){
 			List<CartResponse> responseData = new ArrayList<CartResponse>();
 			for (ShoppingCart shoppingCart : result.getContent()) {
@@ -85,15 +87,15 @@ public class CartController {
 	
 	@PostMapping(value="/add-to-cart", produces=MediaType.APPLICATION_JSON_VALUE, 
 			consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<ListData<CartResponse>> addToCart(@Valid @RequestBody AddToCart requestData){
+	public ApiResponse<ListData<CartResponse>> addToCart(@Valid @RequestBody AddToCart requestData, Principal principal){
 		
 		try {
 			ProductDetail productDetail = productService.getProductDetail(requestData.getOptionId());
 			
 			if(productDetail != null && productDetail.getStock() >= requestData.getQuantity()){
 				
-				shoppingCartService.addToCart(productDetail.getProduct(), productDetail, requestData.getQuantity());
-				ListData<CartResponse> listData = listCart(1, 100);
+				shoppingCartService.addToCart(productDetail.getProduct(), productDetail, requestData.getQuantity(), principal.getName());
+				ListData<CartResponse> listData = listCart(1, 100, principal.getName());
 				return ResponseBuilder.responseSuccess("Success add to your cart", listData);
 			}
 			
@@ -106,11 +108,15 @@ public class CartController {
 	
 	@PutMapping(value="update-cart", produces=MediaType.APPLICATION_JSON_VALUE, 
 			consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<CartResponse> updateCart(@Valid @RequestBody UpdateCart requestData){
+	public ApiResponse<CartResponse> updateCart(@Valid @RequestBody UpdateCart requestData, Principal principal){
 		
 		try {
 			ShoppingCart cartItem = shoppingCartService.getCartItem(requestData.getCartId());
 			if(cartItem != null && cartItem.getProductDetail() != null){
+				
+				if(!StringUtils.equals(principal.getName(), cartItem.getUserId()))
+					return ResponseBuilder.responseError("Unauthorized User");
+				
 				if(cartItem.getProductDetail().getStock() - requestData.getQuantity() >= 0){
 					cartItem.setQuantity(requestData.getQuantity());
 					ShoppingCart updatedCart = shoppingCartService.updateCart(cartItem);
@@ -129,11 +135,16 @@ public class CartController {
 	}
 	
 	@DeleteMapping(value="delete-cart/{id}")
-	public ApiResponse<ListData<CartResponse>> deleteCartItem(@PathVariable(value="id") String cartId){
+	public ApiResponse<ListData<CartResponse>> deleteCartItem(@PathVariable(value="id") String cartId, Principal principal){
 		try {
+			
+			ShoppingCart cartItem = shoppingCartService.getCartItem(cartId);
+			if(cartItem != null && !StringUtils.equals(principal.getName(), cartItem.getUserId()))
+				return ResponseBuilder.responseError("Unauthorized User");
+			
 			boolean deleted = shoppingCartService.deleteCartItem(cartId);
 			if(deleted){
-				ListData<CartResponse> listData = listCart(1, 100);
+				ListData<CartResponse> listData = listCart(1, 100, principal.getName());
 				return ResponseBuilder.responseSuccess("Item deleted from your Cart", listData);
 			}
 		} catch (Exception e) {

@@ -10,16 +10,10 @@ import com.salestock.didik.model.ProductDetail;
 
 public interface OrderService {
 
-	OrderTransaction submitOrder(OrderRequest requestData, Coupon coupon)
+	OrderTransaction submitOrder(OrderRequest requestData, Coupon coupon, String userId)
 			throws Exception;
 
 	OrderTransaction updateOrder(OrderTransaction order);
-
-	Page<OrderTransaction> listOrderTransaction(Integer page, Integer size,
-			String status);
-
-	OrderTransaction updateOrder(String orderId, String status,
-			String shippingTrackingCode);
 
 	OrderTransaction getOrderById(String orderId);
 
@@ -29,4 +23,12 @@ public interface OrderService {
 			boolean isRetur) throws Exception;
 
 	PaymentConfirmLog saveConfirmation(PaymentConfirmLog confirm);
+
+	Iterable<OrderTransaction> listOrderTransaction(String status);
+
+	Page<OrderTransaction> listOrderTransaction(Integer page, Integer size,
+			String status, String userId);
+
+	OrderTransaction updateOrder(String orderId, String status,
+			String shippingTrackingCode, String userId) throws Exception;
 }

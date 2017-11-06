@@ -3,10 +3,10 @@ package com.salestock.didik.api.response;
 import com.salestock.didik.api.request.CreateAddressRequest;
 import com.salestock.didik.model.ShippingAddress;
 
-public class CreateAddressResponse extends CreateAddressRequest {
+public class AddressResponse extends CreateAddressRequest {
 	private String id;
 	
-	public CreateAddressResponse(ShippingAddress address) {
+	public AddressResponse(ShippingAddress address) {
 		if(address != null){
 			this.id = address.getId();
 			this.setFullName(address.getFullName());
