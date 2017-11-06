@@ -52,11 +52,13 @@ Assumption:
 
 8. Step to deploy on local Computer:
 	Prerequisite: 
+	
 		1. Computer / Laptop connected to internet
 		2. Java 1.8 installed on the pc
 		3. Source code from Github
 	
 	Step:
+	
 		1. need to update upload.folder on application.properties to existin folder on your local pc
 	
 		2. perform build with following command 
