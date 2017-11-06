@@ -4,7 +4,7 @@ import com.salestock.didik.model.Product;
 import com.salestock.didik.model.ProductDetail;
 import com.salestock.didik.model.ShoppingCart;
 
-public class CartListResponse {
+public class CartResponse {
 	private String cartId;
 	private Integer quantity;
 	private String productId;
@@ -14,7 +14,7 @@ public class CartListResponse {
 	private String color;
 	private String size;
 	
-	public CartListResponse(ShoppingCart cart) {
+	public CartResponse(ShoppingCart cart) {
 		if(cart != null){
 			this.cartId = cart.getId();
 			this.quantity = cart.getQuantity();

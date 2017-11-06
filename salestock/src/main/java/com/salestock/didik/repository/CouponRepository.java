@@ -8,4 +8,5 @@ import com.salestock.didik.model.Coupon;
 public interface CouponRepository extends JpaRepository<Coupon, String>,
 		QueryDslPredicateExecutor<Coupon> {
 
+	public Coupon findByCode(String code);
 }

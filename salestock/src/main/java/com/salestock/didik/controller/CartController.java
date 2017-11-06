@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.salestock.didik.api.request.AddToCart;
 import com.salestock.didik.api.request.UpdateCart;
 import com.salestock.didik.api.response.ApiResponse;
-import com.salestock.didik.api.response.CartListResponse;
+import com.salestock.didik.api.response.CartResponse;
 import com.salestock.didik.api.response.ListData;
 import com.salestock.didik.api.response.ResponseBuilder;
 import com.salestock.didik.model.ProductDetail;
@@ -47,12 +47,12 @@ public class CartController {
 	private ProductService productService;
 	
 	@GetMapping(value="carts", produces=MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<ListData<CartListResponse>> getListCart(
+	public ApiResponse<ListData<CartResponse>> getListCart(
 			@RequestParam(value="page", defaultValue="1") Integer page, 
 			@RequestParam(value="size", defaultValue="100") Integer size){
 		
 		try {
-			ListData<CartListResponse> responseData = listCart(page, size);
+			ListData<CartResponse> responseData = listCart(page, size);
 			if(responseData != null){
 				return ResponseBuilder.responseSuccess("Success", responseData);
 			}
@@ -63,15 +63,15 @@ public class CartController {
 		}
 	}
 
-	private ListData<CartListResponse> listCart(Integer page, Integer size) {
-		ListData<CartListResponse> response = new ListData<CartListResponse>();
+	private ListData<CartResponse> listCart(Integer page, Integer size) {
+		ListData<CartResponse> response = new ListData<CartResponse>();
 		Page<ShoppingCart> result = shoppingCartService.getShoppingCarts((page > 0) ? page - 1 : page, size);
 		if(result.getTotalElements() > 0){
-			List<CartListResponse> responseData = new ArrayList<CartListResponse>();
+			List<CartResponse> responseData = new ArrayList<CartResponse>();
 			for (ShoppingCart shoppingCart : result.getContent()) {
 				Hibernate.initialize(shoppingCart.getProduct());
 				Hibernate.initialize(shoppingCart.getProductDetail());
-				CartListResponse data = new CartListResponse(shoppingCart);
+				CartResponse data = new CartResponse(shoppingCart);
 				responseData.add(data);
 			}
 			response.setContents(responseData);
@@ -85,7 +85,7 @@ public class CartController {
 	
 	@PostMapping(value="/add-to-cart", produces=MediaType.APPLICATION_JSON_VALUE, 
 			consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<ListData<CartListResponse>> addToCart(@Valid @RequestBody AddToCart requestData){
+	public ApiResponse<ListData<CartResponse>> addToCart(@Valid @RequestBody AddToCart requestData){
 		
 		try {
 			ProductDetail productDetail = productService.getProductDetail(requestData.getOptionId());
@@ -93,7 +93,7 @@ public class CartController {
 			if(productDetail != null && productDetail.getStock() >= requestData.getQuantity()){
 				
 				shoppingCartService.addToCart(productDetail.getProduct(), productDetail, requestData.getQuantity());
-				ListData<CartListResponse> listData = listCart(1, 100);
+				ListData<CartResponse> listData = listCart(1, 100);
 				return ResponseBuilder.responseSuccess("Success add to your cart", listData);
 			}
 			
@@ -106,7 +106,7 @@ public class CartController {
 	
 	@PutMapping(value="update-cart", produces=MediaType.APPLICATION_JSON_VALUE, 
 			consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<CartListResponse> updateCart(@Valid @RequestBody UpdateCart requestData){
+	public ApiResponse<CartResponse> updateCart(@Valid @RequestBody UpdateCart requestData){
 		
 		try {
 			ShoppingCart cartItem = shoppingCartService.getCartItem(requestData.getCartId());
@@ -116,7 +116,7 @@ public class CartController {
 					ShoppingCart updatedCart = shoppingCartService.updateCart(cartItem);
 					Hibernate.initialize(updatedCart.getProduct());
 					Hibernate.initialize(updatedCart.getProductDetail());
-					CartListResponse response = new CartListResponse(updatedCart);
+					CartResponse response = new CartResponse(updatedCart);
 					return ResponseBuilder.responseSuccess("Updated", response);
 				}
 				return ResponseBuilder.responseError("Stock unavailable");
@@ -129,11 +129,11 @@ public class CartController {
 	}
 	
 	@DeleteMapping(value="delete-cart/{id}")
-	public ApiResponse<ListData<CartListResponse>> deleteCartItem(@PathVariable(value="id") String cartId){
+	public ApiResponse<ListData<CartResponse>> deleteCartItem(@PathVariable(value="id") String cartId){
 		try {
 			boolean deleted = shoppingCartService.deleteCartItem(cartId);
 			if(deleted){
-				ListData<CartListResponse> listData = listCart(1, 100);
+				ListData<CartResponse> listData = listCart(1, 100);
 				return ResponseBuilder.responseSuccess("Item deleted from your Cart", listData);
 			}
 		} catch (Exception e) {

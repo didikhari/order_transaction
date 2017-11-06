@@ -25,9 +25,10 @@ public class ShippingAddress implements java.io.Serializable {
 	private String addressLine;
 	private String subDistrict;
 	private String city;
+	private String cityId;
 	private String province;
 	private String postalCode;
-	private Integer userId;
+	private String userId;
 	private Set<OrderTransaction> orders = new HashSet<OrderTransaction>(0);
 
 	public ShippingAddress() {
@@ -49,7 +50,7 @@ public class ShippingAddress implements java.io.Serializable {
 
 	public ShippingAddress(String id, String fullName, String email,
 			String phone, String addressLine, String subDistrict, String city,
-			String province, String postalCode, Integer userId, Set<OrderTransaction> orders) {
+			String province, String postalCode, String userId, Set<OrderTransaction> orders) {
 		this.id = id;
 		this.fullName = fullName;
 		this.email = email;
@@ -146,11 +147,11 @@ public class ShippingAddress implements java.io.Serializable {
 	}
 
 	@Column(name = "user_id")
-	public Integer getUserId() {
+	public String getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(Integer userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
@@ -161,6 +162,15 @@ public class ShippingAddress implements java.io.Serializable {
 
 	public void setOrders(Set<OrderTransaction> orders) {
 		this.orders = orders;
+	}
+
+	@Column(name = "city_id")
+	public String getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(String cityId) {
+		this.cityId = cityId;
 	}
 
 }

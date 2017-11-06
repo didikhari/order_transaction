@@ -7,7 +7,7 @@ import com.salestock.didik.model.Product;
 import com.salestock.didik.model.ProductDetail;
 
 public class ProductSingleResponse extends ProductListResponse {
-	private Double weight;
+	private Integer weight;
 	private List<Detail> options = new ArrayList<Detail>();
 
 	public ProductSingleResponse(Product product) {
@@ -26,11 +26,11 @@ public class ProductSingleResponse extends ProductListResponse {
 		}
 	}
 
-	public Double getWeight() {
+	public Integer getWeight() {
 		return weight;
 	}
 
-	public void setWeight(Double weight) {
+	public void setWeight(Integer weight) {
 		this.weight = weight;
 	}
 

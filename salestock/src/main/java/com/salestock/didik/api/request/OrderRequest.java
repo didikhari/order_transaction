@@ -1,6 +1,5 @@
 package com.salestock.didik.api.request;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -12,7 +11,7 @@ public class OrderRequest {
 	private List<String> cartIds;
 	@NotBlank
 	private String shippingAddressId;
-	private BigDecimal shippingCost;
+	private String shippingService;
 	private String paymentMethod;
 
 	public String getCouponCode() {
@@ -39,19 +38,19 @@ public class OrderRequest {
 		this.shippingAddressId = shippingAddressId;
 	}
 
-	public BigDecimal getShippingCost() {
-		return shippingCost;
-	}
-
-	public void setShippingCost(BigDecimal shippingCost) {
-		this.shippingCost = shippingCost;
-	}
-
 	public String getPaymentMethod() {
 		return paymentMethod;
 	}
 
 	public void setPaymentMethod(String paymentMethod) {
 		this.paymentMethod = paymentMethod;
+	}
+
+	public String getShippingService() {
+		return shippingService;
+	}
+
+	public void setShippingService(String shippingService) {
+		this.shippingService = shippingService;
 	}
 }
