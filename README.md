@@ -44,13 +44,7 @@ Assumption:
 	2. Admin
 		admin@gmail.com / admin123
 
-6. Deployed Api:
-	http://93.188.161.110:8181
-
-7. Swagger Api Docs and Testing UI:
-	http://93.188.161.110:8181/swagger-ui.html
-
-8. Step to deploy on local Computer:
+6. Step to deploy on local Computer:
 	Prerequisite: 
 	
 		1. Computer / Laptop connected to internet
